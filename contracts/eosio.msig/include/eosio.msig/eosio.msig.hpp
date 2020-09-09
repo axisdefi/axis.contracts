@@ -6,7 +6,12 @@
 #include <eosio/transaction.hpp>
 
 namespace eosio {
-   
+
+   /**
+    *  Clone of `eosio::binary_extension` that includes `operator=` to avoid
+    *  bumping the `eosio.cdt` dependency version of the v1.8.x patch release of
+    *  `eosio.contracts`.
+    */
    template <typename T>
    class eosio_msig_binary_extension {
       public:
@@ -50,7 +55,7 @@ namespace eosio {
          ~eosio_msig_binary_extension() { reset(); }
 
          /// @cond INTERNAL
-         constexpr eosio_msig_binary_extension& operator = (const eosio_msig_binary_extension& other) {
+         constexpr eosio_msig_binary_extension& operator= (const eosio_msig_binary_extension& other) {
             if (has_value())
                reset();
 
@@ -62,7 +67,7 @@ namespace eosio {
          }
 
          /// @cond INTERNAL
-         constexpr eosio_msig_binary_extension& operator = (eosio_msig_binary_extension&& other) {
+         constexpr eosio_msig_binary_extension& operator= (eosio_msig_binary_extension&& other) {
             if (has_value())
                reset();
 
@@ -105,17 +110,18 @@ namespace eosio {
                return _get();
             return def;
          }
-         constexpr T&& value_or()&& {
-            if (!_has_value)
-               return std::move(T());
-            _has_value = false;
-            return std::move(_get());
+         constexpr auto&& value_or()&& {
+            if (_has_value)
+               return _get();
+            else
+               return T{};
          }
-         constexpr const T&& value_or()const&& {
-            if (!_has_value)
-               return std::move(T());
-            _has_value = false;
-            return std::move(_get());
+         
+         constexpr const auto&& value_or()const&& {
+            if (_has_value)
+               return _get();
+            else
+               return T{};
          }
          constexpr T value_or()& {
             if (!_has_value)
