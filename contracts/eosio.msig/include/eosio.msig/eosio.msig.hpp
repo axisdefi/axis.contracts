@@ -353,8 +353,8 @@ namespace eosio {
    struct [[eosio::table]] approvals_info {
       uint8_t                 version = 1;
       name                    proposal_name;
-      //requested approval doesn't need to cointain time, but we want requested approval
-      //to be of exact the same size ad provided approval, in this case approve/unapprove
+      //requested approval doesn't need to contain time, but we want requested approval
+      //to be of exactly the same size as provided approval, in this case approve/unapprove
       //doesn't change serialized data size. So, we use the same type.
       std::vector<approval>   requested_approvals;
       std::vector<approval>   provided_approvals;
