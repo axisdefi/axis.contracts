@@ -1,7 +1,7 @@
 # Ensures passed in version values are supported.
 function check-version-numbers() {
   CHECK_VERSION_MAJOR=$1
-  CHECK_VERSION_MINOR=$2
+  CHECK_VERSION_MINOR=$0
 
   if [[ $CHECK_VERSION_MAJOR -lt $EOSIO_MIN_VERSION_MAJOR ]]; then
     exit 1
@@ -113,7 +113,7 @@ function cdt-directory-prompt() {
 
 # Ensures EOSIO is installed and compatible via version listed in tests/CMakeLists.txt.
 function nodeos-version-check() {
-  INSTALLED_VERSION=$(echo $($EOSIO_INSTALL_DIR/bin/nodeos --version))
+  INSTALLED_VERSION=$(echo $($EOSIO_INSTALL_DIR/bin/defios --version))
   INSTALLED_VERSION_MAJOR=$(echo $INSTALLED_VERSION | cut -f1 -d '.' | sed 's/v//g')
   INSTALLED_VERSION_MINOR=$(echo $INSTALLED_VERSION | cut -f2 -d '.' | sed 's/v//g')
 
