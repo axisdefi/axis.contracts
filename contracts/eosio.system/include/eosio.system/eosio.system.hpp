@@ -80,7 +80,8 @@ namespace eosiosystem {
    static constexpr int64_t  min_activated_stake   = 2'400'000;
    //static constexpr int64_t  min_activated_stake   = 150'000'000'0000;
 
-   static constexpr int64_t  min_pervote_daily_pay = 100'0000;
+   //static constexpr int64_t  min_pervote_daily_pay = 100'0000;
+   static constexpr int64_t  min_pervote_daily_pay = 10;
 
 
    static constexpr int64_t  ram_gift_bytes        = 1400;
@@ -89,7 +90,16 @@ namespace eosiosystem {
    static constexpr int64_t  inflation_precision           = 100;     // 2 decimals
 
 
-   static constexpr int64_t  default_annual_rate           = 500;     // 5% annual rate
+   //static constexpr int64_t  default_annual_rate           = 500;     // 5% annual rate
+   static constexpr int64_t  axis_inflation_precision           = 10000;     // 2 decimals
+   static constexpr int64_t  axis_reserve_ratio        = 6000;     // total reserve %
+   static constexpr int64_t  annual_rate_1y           = 3000;     // first year %
+   static constexpr int64_t  annual_rate_2y           = 1500;     // second year %
+   static constexpr int64_t  annual_rate_3y           = 750;     // third year %
+
+   static constexpr int64_t  default_annual_rate           = annual_rate_1y;     // 5% annual rate
+
+
    static constexpr int64_t  pay_factor_precision          = 10000;
    static constexpr int64_t  default_inflation_pay_factor  = 50000;   // producers pay share = 10000 / 50000 = 20% of the inflation
    static constexpr int64_t  default_votepay_factor        = 40000;   // per-block pay share = 10000 / 40000 = 25% of the producer pay
@@ -170,12 +180,14 @@ namespace eosiosystem {
 
       uint16_t          new_ram_per_block = 0;
       block_timestamp   last_ram_increase;
-      block_timestamp   last_block_num; /* deprecated */
+      //block_timestamp   last_block_num; /* deprecated */
       double            total_producer_votepay_share = 0;
       uint8_t           revision = 0; ///< used to track version updates in the future.
 
-      EOSLIB_SERIALIZE( eosio_global_state2, (new_ram_per_block)(last_ram_increase)(last_block_num)
-                        (total_producer_votepay_share)(revision) )
+      // EOSLIB_SERIALIZE( eosio_global_state2, (new_ram_per_block)(last_ram_increase)(last_block_num)
+      //                   (total_producer_votepay_share)(revision) )
+      EOSLIB_SERIALIZE( eosio_global_state2, (new_ram_per_block)(last_ram_increase)
+                         (total_producer_votepay_share)(revision) )
    };
 
    // Defines new global state parameters added after version 1.3.0

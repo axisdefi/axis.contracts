@@ -12,7 +12,8 @@ namespace eosiosystem {
    using eosio::token;
 
    double get_continuous_rate(int64_t annual_rate) {
-      return std::log1p(double(annual_rate)/double(100*inflation_precision));
+      //return std::log1p(double(annual_rate)/double(axis_inflation_precision));
+      return double(axis_reserve_ratio * annual_rate)/double(axis_inflation_precision*axis_inflation_precision);
    }
 
    system_contract::system_contract( name s, name code, datastream<const char*> ds )

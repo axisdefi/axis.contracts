@@ -19,7 +19,7 @@ namespace eosiosystem {
       // _gstate2.last_block_num is not used anywhere in the system contract code anymore.
       // Although this field is deprecated, we will continue updating it for now until the last_block_num field
       // is eventually completely removed, at which point this line can be removed.
-      _gstate2.last_block_num = timestamp;
+      //_gstate2.last_block_num = timestamp;
 
       /** until activation, no new rewards are paid */
       if( _gstate.thresh_activated_stake_time == time_point() )
@@ -42,7 +42,10 @@ namespace eosiosystem {
       }
 
       /// only update block producers once every minute, block_timestamp is in half seconds
-      if( timestamp.slot - _gstate.last_producer_schedule_update.slot > 120 ) {
+      //if( timestamp.slot - _gstate.last_producer_schedule_update.slot > 120 ) {
+      
+      // axis one second blocktime, update producers every minute.
+      if( timestamp.slot - _gstate.last_producer_schedule_update.slot > 60 ) {
          update_elected_producers( timestamp );
 
          if( (timestamp.slot - _gstate.last_name_close.slot) > blocks_per_day ) {
@@ -163,6 +166,7 @@ namespace eosiosystem {
          }
       }
 
+      // @TODO:
       if( producer_per_vote_pay < min_pervote_daily_pay ) {
          producer_per_vote_pay = 0;
       }

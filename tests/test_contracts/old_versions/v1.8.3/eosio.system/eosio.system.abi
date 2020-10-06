@@ -508,10 +508,6 @@
                     "type": "block_timestamp_type"
                 },
                 {
-                    "name": "last_block_num",
-                    "type": "block_timestamp_type"
-                },
-                {
                     "name": "total_producer_votepay_share",
                     "type": "float64"
                 },
