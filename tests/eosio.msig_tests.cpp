@@ -40,7 +40,7 @@ public:
    }
 
    transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, asset ramfunds, bool multisig,
-                                                        asset net = core_sym::from_string("10.0000"), asset cpu = core_sym::from_string("10.0000") ) {
+                                                        asset net = core_sym::from_string("10.00000000"), asset cpu = core_sym::from_string("10.00000000") ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -425,9 +425,9 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
    set_code( N(eosio.token), contracts::token_wasm() );
    set_abi( N(eosio.token), contracts::token_abi().data() );
 
-   create_currency( N(eosio.token), config::system_account_name, core_sym::from_string("10000000000.0000") );
-   issue(config::system_account_name, core_sym::from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("1000000000.0000"),
+   create_currency( N(eosio.token), config::system_account_name, core_sym::from_string("24000000.00000000") );
+   issue(config::system_account_name, core_sym::from_string("24000000.00000000"));
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("24000000.00000000"),
                         get_balance(config::system_account_name) + get_balance(N(eosio.ramfee)) + get_balance(N(eosio.stake)) + get_balance(N(eosio.ram)) );
 
    set_code( config::system_account_name, contracts::system_wasm() );
@@ -438,11 +438,11 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
                               ("core", CORE_SYM_STR)
    );
    produce_blocks();
-   create_account_with_resources( N(alice1111111), N(eosio), core_sym::from_string("1.0000"), false );
-   create_account_with_resources( N(bob111111111), N(eosio), core_sym::from_string("0.4500"), false );
-   create_account_with_resources( N(carol1111111), N(eosio), core_sym::from_string("1.0000"), false );
+   create_account_with_resources( N(alice1111111), N(eosio), core_sym::from_string("1.00000000"), false );
+   create_account_with_resources( N(bob111111111), N(eosio), core_sym::from_string("0.45000000"), false );
+   create_account_with_resources( N(carol1111111), N(eosio), core_sym::from_string("1.00000000"), false );
 
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("1000000000.0000"),
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("24000000.00000000"),
                         get_balance(config::system_account_name) + get_balance(N(eosio.ramfee)) + get_balance(N(eosio.stake)) + get_balance(N(eosio.ram)) );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
@@ -522,7 +522,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
 
    // can't create account because system contract was replaced by the reject_all contract
 
-   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), N(eosio), core_sym::from_string("1.0000"), false ),
+   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), N(eosio), core_sym::from_string("1.00000000"), false ),
                             eosio_assert_message_exception, eosio_assert_message_is("rejecting all actions")
 
    );
@@ -551,9 +551,9 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
    set_code( N(eosio.token), contracts::token_wasm() );
    set_abi( N(eosio.token), contracts::token_abi().data() );
 
-   create_currency( N(eosio.token), config::system_account_name, core_sym::from_string("10000000000.0000") );
-   issue(config::system_account_name, core_sym::from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("1000000000.0000"), get_balance( config::system_account_name ) );
+   create_currency( N(eosio.token), config::system_account_name, core_sym::from_string("24000000.00000000") );
+   issue(config::system_account_name, core_sym::from_string("24000000.00000000"));
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("24000000.00000000"), get_balance( config::system_account_name ) );
 
    set_code( config::system_account_name, contracts::system_wasm() );
    set_abi( config::system_account_name, contracts::system_abi().data() );
@@ -564,11 +564,11 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
    );
    produce_blocks();
 
-   create_account_with_resources( N(alice1111111), N(eosio), core_sym::from_string("1.0000"), false );
-   create_account_with_resources( N(bob111111111), N(eosio), core_sym::from_string("0.4500"), false );
-   create_account_with_resources( N(carol1111111), N(eosio), core_sym::from_string("1.0000"), false );
+   create_account_with_resources( N(alice1111111), N(eosio), core_sym::from_string("1.00000000"), false );
+   create_account_with_resources( N(bob111111111), N(eosio), core_sym::from_string("0.45000000"), false );
+   create_account_with_resources( N(carol1111111), N(eosio), core_sym::from_string("1.00000000"), false );
 
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("1000000000.0000"),
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("24000000.00000000"),
                         get_balance(config::system_account_name) + get_balance(N(eosio.ramfee)) + get_balance(N(eosio.stake)) + get_balance(N(eosio.ram)) );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
@@ -660,7 +660,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
 
    // can't create account because system contract was replaced by the reject_all contract
 
-   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), N(eosio), core_sym::from_string("1.0000"), false ),
+   BOOST_REQUIRE_EXCEPTION( create_account_with_resources( N(alice1111112), N(eosio), core_sym::from_string("1.00000000"), false ),
                             eosio_assert_message_exception, eosio_assert_message_is("rejecting all actions")
 
    );
