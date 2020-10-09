@@ -52,6 +52,7 @@ namespace eosiosystem {
       check( quant.amount > 0, "must purchase a positive amount" );
 
       auto fee = quant;
+
       fee.amount = ( fee.amount + 199 ) / 200; /// .5% fee (round up)
       // fee.amount cannot be 0 since that is only possible if quant.amount is 0 which is not allowed by the assert above.
       // If quant.amount == 1, then fee.amount == 1,
@@ -152,6 +153,7 @@ namespace eosiosystem {
          token::transfer_action transfer_act{ token_account, { {ram_account, active_permission}, {account, active_permission} } };
          transfer_act.send( ram_account, account, asset(tokens_out), "sell ram" );
       }
+
       auto fee = ( tokens_out.amount + 199 ) / 200; /// .5% fee (round up)
       // since tokens_out.amount was asserted to be at least 2 earlier, fee.amount < tokens_out.amount
       if ( fee > 0 ) {

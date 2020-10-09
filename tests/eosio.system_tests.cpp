@@ -58,19 +58,19 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
 
    auto b = get_balance( "alice1111111" );
 
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("998.00490000"), b );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("998.00499999"), b );
    total = get_total_stake( "alice1111111" );
    BOOST_REQUIRE_EQUAL( true, total["ram_bytes"].as_uint64() == init_bytes );
 
    transfer( "eosio", "alice1111111", core_sym::from_string("10000.00000000"), "eosio" );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("10998.00490000"), get_balance( "alice1111111" ) );
-   // alice buys ram for 10000000.00000000, 0.5% = 50000.00000000 go to ramfee
-   // after fee 9950000.00000000 go to bought bytes
-   // when selling back bought bytes, pay 0.5% fee and get back 99.5% of 9950000.00000000 = 9900250.00000000
-   // expected account after that is 90000998.00490000 + 9900250.00000000 = 99901248.00490000 with a difference
-   // of order 0.0001 due to rounding errors
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("10998.00499999"), get_balance( "alice1111111" ) );
+   // alice buys ram for 1000.00000000, 0.5% = 5.00000000 go to ramfee
+   // after fee 995.00000000 go to bought bytes
+   // when selling back bought bytes, pay 0.5% fee and get back 99.5% of 995.00000000 = 990.02500000
+   // expected account after that is 9998.00499999 + 990.02500000 = 10988.02999999 ,with rounding to 10988.03000000
+
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("1000.00000000") ) );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("9998.00490000"), get_balance( "alice1111111" ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("9998.00499999"), get_balance( "alice1111111" ) );
 
    total = get_total_stake( "alice1111111" );
    bytes = total["ram_bytes"].as_uint64();
@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
    wdump((init_bytes)(bought_bytes)(bytes) );
 
    BOOST_REQUIRE_EQUAL( true, total["ram_bytes"].as_uint64() == init_bytes );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("99901248.0048"), get_balance( "alice1111111" ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("10988.02999995"), get_balance( "alice1111111" ) );
 
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("100.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("100.00000000") ) );
@@ -96,8 +96,11 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("10.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("10.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("30.00000000") ) );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("99900688.0048"), get_balance( "alice1111111" ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("10428.02999995"), get_balance( "alice1111111" ) );
 
+   // when buy , 560 * 0.995 = 557.2 ram
+   // when sell , 557.2 *0.995 = 554.414
+   // final = 10428.02999995 + 554.414 = 10982.44399995
    auto newtotal = get_total_stake( "alice1111111" );
 
    auto newbytes = newtotal["ram_bytes"].as_uint64();
@@ -105,10 +108,12 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
    wdump((newbytes)(bytes)(bought_bytes) );
 
    BOOST_REQUIRE_EQUAL( success(), sellram( "alice1111111", bought_bytes ) );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("99901242.4187"), get_balance( "alice1111111" ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("10982.44399970"), get_balance( "alice1111111" ) );
 
    newtotal = get_total_stake( "alice1111111" );
    auto startbytes = newtotal["ram_bytes"].as_uint64();
+
+
 
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("1000.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("1000.00000000") ) );
@@ -119,7 +124,7 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("10.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("10.00000000") ) );
    BOOST_REQUIRE_EQUAL( success(), buyram( "alice1111111", "alice1111111", core_sym::from_string("30.00000000") ) );
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("49301242.4187"), get_balance( "alice1111111" ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("5922.44399970"), get_balance( "alice1111111" ) );
 
    auto finaltotal = get_total_stake( "alice1111111" );
    auto endbytes = finaltotal["ram_bytes"].as_uint64();
@@ -155,18 +160,19 @@ BOOST_FIXTURE_TEST_CASE( buysell, eosio_system_tester ) try {
 
       const int64_t fee = (payment.get_amount() + 199) / 200;
       const double net_payment = payment.get_amount() - fee;
-      const int64_t expected_delta = net_payment * r0.get_amount() / ( net_payment + e0.get_amount() );
+      const int64_t expected_delta = ( net_payment * r0.get_amount() / ( net_payment + e0.get_amount() )  );
 
       BOOST_REQUIRE_EQUAL( expected_delta, bytes1 -  bytes0 );
    }
 
    {
-      transfer( config::system_account_name, N(bob111111111), core_sym::from_string("10.00000000"), config::system_account_name );
+      transfer( config::system_account_name, N(bob111111111), core_sym::from_string("10000.00000000"), config::system_account_name );
       BOOST_REQUIRE_EQUAL( wasm_assert_msg("must reserve a positive amount"),
                            buyrambytes( "bob111111111", "bob111111111", 1 ) );
 
       uint64_t bytes0 = get_total_stake( "bob111111111" )["ram_bytes"].as_uint64();
       BOOST_REQUIRE_EQUAL( success(), buyrambytes( "bob111111111", "bob111111111", 1024 ) );
+      
       uint64_t bytes1 = get_total_stake( "bob111111111" )["ram_bytes"].as_uint64();
       BOOST_REQUIRE( within_one( 1024, bytes1 - bytes0 ) );
 

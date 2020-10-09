@@ -86,7 +86,10 @@ namespace eosiosystem {
       const double ob = out_reserve;
       const double in = inp;
 
-      int64_t out = int64_t( (in * ob) / (ib + in) );
+      //int64_t out = int64_t( (in * ob) / (ib + in) );
+      // better to prevent overflow
+      int64_t out = int64_t( ob  / (ib + in) * in   );
+
 
       if ( out < 0 ) out = 0;
 
@@ -100,7 +103,9 @@ namespace eosiosystem {
       const double ob = out_reserve;
       const double ib = inp_reserve;
 
-      int64_t inp = (ib * out) / (ob - out);
+      //int64_t inp = (ib * out) / (ob - out);
+      // better to prevent overflow
+      int64_t inp = int64_t(ib / (ob - out) * out  );
 
       if ( inp < 0 ) inp = 0;
 
