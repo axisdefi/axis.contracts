@@ -48,10 +48,10 @@ public:
    }
 
    void create_core_token( symbol core_symbol = symbol{CORE_SYM} ) {
-      FC_ASSERT( core_symbol.decimals() == 4, "create_core_token assumes core token has 4 digits of precision" );
-      create_currency( N(eosio.token), config::system_account_name, asset(100000000000000, core_symbol) );
-      issue( asset(10000000000000, core_symbol) );
-      BOOST_REQUIRE_EQUAL( asset(10000000000000, core_symbol), get_balance( "eosio", core_symbol ) );
+      FC_ASSERT( core_symbol.decimals() == CORE_SYM_PRECISION, "create_core_token assumes core token has 4 digits of precision" );
+      create_currency( N(eosio.token), config::system_account_name, asset(2400000000000000, core_symbol) );
+      issue( asset(240000000000000, core_symbol) );
+      BOOST_REQUIRE_EQUAL( asset(240000000000000, core_symbol), get_balance( "eosio", core_symbol ) );
    }
 
    void deploy_contract( bool call_init = true ) {
@@ -77,11 +77,11 @@ public:
       produce_blocks();
 
       // Assumes previous setup steps were done with core token symbol set to CORE_SYM
-      create_account_with_resources( N(alice1111111), config::system_account_name, core_sym::from_string("1.0000"), false );
-      create_account_with_resources( N(bob111111111), config::system_account_name, core_sym::from_string("0.4500"), false );
-      create_account_with_resources( N(carol1111111), config::system_account_name, core_sym::from_string("1.0000"), false );
+      create_account_with_resources( N(alice1111111), config::system_account_name, core_sym::from_string("1.00000000"), false );
+      create_account_with_resources( N(bob111111111), config::system_account_name, core_sym::from_string("0.45000000"), false );
+      create_account_with_resources( N(carol1111111), config::system_account_name, core_sym::from_string("1.00000000"), false );
 
-      BOOST_REQUIRE_EQUAL( core_sym::from_string("1000000000.0000"), get_balance("eosio")  + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+      BOOST_REQUIRE_EQUAL( core_sym::from_string("2400000.00000000"), get_balance("eosio")  + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
    }
 
    enum class setup_level {
@@ -149,8 +149,8 @@ public:
                                             mvo()
                                             ("from", creator)
                                             ("receiver", a)
-                                            ("stake_net_quantity", core_sym::from_string("10.0000") )
-                                            ("stake_cpu_quantity", core_sym::from_string("10.0000") )
+                                            ("stake_net_quantity", core_sym::from_string("10.00000000") )
+                                            ("stake_cpu_quantity", core_sym::from_string("10.00000000") )
                                             ("transfer", 0 )
                                           )
                                 );
@@ -161,7 +161,7 @@ public:
    }
 
    transaction_trace_ptr create_account_with_resources( account_name a, account_name creator, asset ramfunds, bool multisig,
-                                                        asset net = core_sym::from_string("10.0000"), asset cpu = core_sym::from_string("10.0000") ) {
+                                                        asset net = core_sym::from_string("10.00000000"), asset cpu = core_sym::from_string("10.00000000") ) {
       signed_transaction trx;
       set_transaction_headers(trx);
 
@@ -204,9 +204,9 @@ public:
    }
 
    transaction_trace_ptr setup_producer_accounts( const std::vector<account_name>& accounts,
-                                                  asset ram = core_sym::from_string("1.0000"),
-                                                  asset cpu = core_sym::from_string("80.0000"),
-                                                  asset net = core_sym::from_string("80.0000")
+                                                  asset ram = core_sym::from_string("1.00000000"),
+                                                  asset cpu = core_sym::from_string("80.00000000"),
+                                                  asset net = core_sym::from_string("80.00000000")
                                                 )
    {
       account_name creator(config::system_account_name);
@@ -453,7 +453,7 @@ public:
       return push_action( name(owner), N(cnclrexorder), mvo()("owner", owner) );
    }
 
-   action_result rentcpu( const account_name& from, const account_name& receiver, const asset& payment, const asset& fund = core_sym::from_string("0.0000") ) {
+   action_result rentcpu( const account_name& from, const account_name& receiver, const asset& payment, const asset& fund = core_sym::from_string("0.00000000") ) {
       return push_action( name(from), N(rentcpu), mvo()
                           ("from",         from)
                           ("receiver",     receiver)
@@ -462,7 +462,7 @@ public:
       );
    }
 
-   action_result rentnet( const account_name& from, const account_name& receiver, const asset& payment, const asset& fund = core_sym::from_string("0.0000") ) {
+   action_result rentnet( const account_name& from, const account_name& receiver, const asset& payment, const asset& fund = core_sym::from_string("0.00000000") ) {
       return push_action( name(from), N(rentnet), mvo()
                           ("from",         from)
                           ("receiver",     receiver)
@@ -477,10 +477,10 @@ public:
                                              ("from",         from)
                                              ("receiver",     receiver)
                                              ("loan_payment", payment)
-                                             ("loan_fund",    core_sym::from_string("0.0000") )
+                                             ("loan_fund",    core_sym::from_string("0.00000000") )
       );
 
-      asset rented_tokens = core_sym::from_string("0.0000");
+      asset rented_tokens = core_sym::from_string("0.00000000");
       for ( size_t i = 0; i < trace->action_traces.size(); ++i ) {
          if ( trace->action_traces[i].act.name == N(rentresult) ) {
             fc::raw::unpack( trace->action_traces[i].act.data.data(),
@@ -612,7 +612,7 @@ public:
 
    asset get_rex_balance( const account_name& act ) const {
       vector<char> data = get_row_by_account( config::system_account_name, config::system_account_name, N(rexbal), act );
-      return data.empty() ? asset(0, symbol(SY(4, REX))) : abi_ser.binary_to_variant("rex_balance", data, abi_serializer_max_time)["rex_balance"].as<asset>();
+      return data.empty() ? asset(0, symbol(SY(CORE_SYM_PRECISION, REX))) : abi_ser.binary_to_variant("rex_balance", data, abi_serializer_max_time)["rex_balance"].as<asset>();
    }
 
    fc::variant get_rex_balance_obj( const account_name& act ) const {
@@ -632,7 +632,7 @@ public:
 
    asset get_rex_vote_stake( const account_name& act ) const {
       vector<char> data = get_row_by_account( config::system_account_name, config::system_account_name, N(rexbal), act );
-      return data.empty() ? core_sym::from_string("0.0000") : abi_ser.binary_to_variant("rex_balance", data, abi_serializer_max_time)["vote_stake"].as<asset>();
+      return data.empty() ? core_sym::from_string("0.00000000") : abi_ser.binary_to_variant("rex_balance", data, abi_serializer_max_time)["vote_stake"].as<asset>();
    }
 
    fc::variant get_rex_order( const account_name& act ) {
@@ -710,20 +710,20 @@ public:
       
    void setup_rex_accounts( const std::vector<account_name>& accounts,
                             const asset& init_balance,
-                            const asset& net = core_sym::from_string("80.0000"),
-                            const asset& cpu = core_sym::from_string("80.0000"),
+                            const asset& net = core_sym::from_string("80.00000000"),
+                            const asset& cpu = core_sym::from_string("80.00000000"),
                             bool deposit_into_rex_fund = true ) {
-      const asset nstake = core_sym::from_string("10.0000");
-      const asset cstake = core_sym::from_string("10.0000");
-      create_account_with_resources( N(proxyaccount), config::system_account_name, core_sym::from_string("1.0000"), false, net, cpu );
+      const asset nstake = core_sym::from_string("10.00000000");
+      const asset cstake = core_sym::from_string("10.00000000");
+      create_account_with_resources( N(proxyaccount), config::system_account_name, core_sym::from_string("1.00000000"), false, net, cpu );
       BOOST_REQUIRE_EQUAL( success(), push_action( N(proxyaccount), N(regproxy), mvo()("proxy", "proxyaccount")("isproxy", true) ) );
       for (const auto& a: accounts) {
-         create_account_with_resources( a, config::system_account_name, core_sym::from_string("1.0000"), false, net, cpu );
+         create_account_with_resources( a, config::system_account_name, core_sym::from_string("1.00000000"), false, net, cpu );
          transfer( config::system_account_name, a, init_balance + nstake + cstake, config::system_account_name );
          BOOST_REQUIRE_EQUAL( success(),                        stake( a, a, nstake, cstake) );
          BOOST_REQUIRE_EQUAL( success(),                        vote( a, { }, N(proxyaccount) ) );
          BOOST_REQUIRE_EQUAL( init_balance,                     get_balance(a) );
-         BOOST_REQUIRE_EQUAL( asset::from_string("0.0000 REX"), get_rex_balance(a) );
+         BOOST_REQUIRE_EQUAL( asset::from_string("0.00000000 REX"), get_rex_balance(a) );
          if (deposit_into_rex_fund) {
             BOOST_REQUIRE_EQUAL( success(),    deposit( a, init_balance ) );
             BOOST_REQUIRE_EQUAL( init_balance, get_rex_fund( a ) );
@@ -924,7 +924,7 @@ public:
    }
 
    asset get_token_supply() {
-      return get_stats("4," CORE_SYM_NAME)["supply"].as<asset>();
+      return get_stats("CORE_SYM_PRECISION," CORE_SYM_NAME)["supply"].as<asset>();
    }
 
    uint64_t microseconds_since_epoch_of_iso_string( const fc::variant& v ) {
@@ -956,7 +956,7 @@ public:
       abi_serializer msig_abi_ser;
       {
          create_account_with_resources( N(eosio.msig), config::system_account_name );
-         BOOST_REQUIRE_EQUAL( success(), buyram( N(eosio), N(eosio.msig), core_sym::from_string("5000.0000") ) );
+         BOOST_REQUIRE_EQUAL( success(), buyram( N(eosio), N(eosio.msig), core_sym::from_string("5000.00000000") ) );
          produce_block();
 
          auto trace = base_tester::push_action(config::system_account_name, N(setpriv),
@@ -979,8 +979,8 @@ public:
 
    vector<name> active_and_vote_producers() {
       //stake more than 15% of total EOS supply to activate chain
-      transfer( N(eosio), N(alice1111111), core_sym::from_string("650000000.0000"), config::system_account_name );
-      BOOST_REQUIRE_EQUAL( success(), stake( N(alice1111111), N(alice1111111), core_sym::from_string("300000000.0000"), core_sym::from_string("300000000.0000") ) );
+      transfer( N(eosio), N(alice1111111), core_sym::from_string("65000.00000000"), config::system_account_name );
+      BOOST_REQUIRE_EQUAL( success(), stake( N(alice1111111), N(alice1111111), core_sym::from_string("30000.00000000"), core_sym::from_string("30000.00000000") ) );
 
       // create accounts {defproducera, defproducerb, ..., defproducerz} and register as producers
       std::vector<account_name> producer_names;
@@ -1012,9 +1012,9 @@ public:
 
       //vote for producers
       {
-         transfer( config::system_account_name, N(alice1111111), core_sym::from_string("100000000.0000"), config::system_account_name );
-         BOOST_REQUIRE_EQUAL(success(), stake( N(alice1111111), core_sym::from_string("30000000.0000"), core_sym::from_string("30000000.0000") ) );
-         BOOST_REQUIRE_EQUAL(success(), buyram( N(alice1111111), N(alice1111111), core_sym::from_string("30000000.0000") ) );
+         transfer( config::system_account_name, N(alice1111111), core_sym::from_string("10000.00000000"), config::system_account_name );
+         BOOST_REQUIRE_EQUAL(success(), stake( N(alice1111111), core_sym::from_string("3000.00000000"), core_sym::from_string("3000.00000000") ) );
+         BOOST_REQUIRE_EQUAL(success(), buyram( N(alice1111111), N(alice1111111), core_sym::from_string("3000.00000000") ) );
          BOOST_REQUIRE_EQUAL(success(), push_action(N(alice1111111), N(voteproducer), mvo()
                                                     ("voter",  "alice1111111")
                                                     ("proxy", name(0).to_string())
@@ -1043,8 +1043,8 @@ public:
                                                mvo()
                                                ("from", name{config::system_account_name})
                                                ("receiver", "producer1111")
-                                               ("stake_net_quantity", core_sym::from_string("150000000.0000") )
-                                               ("stake_cpu_quantity", core_sym::from_string("0.0000") )
+                                               ("stake_net_quantity", core_sym::from_string("15000.00000000") )
+                                               ("stake_cpu_quantity", core_sym::from_string("0.00000000") )
                                                ("transfer", 1 )
                                              )
                                  );
@@ -1061,8 +1061,8 @@ public:
                                                mvo()
                                                ("from", "producer1111")
                                                ("receiver", "producer1111")
-                                               ("unstake_net_quantity", core_sym::from_string("150000000.0000") )
-                                               ("unstake_cpu_quantity", core_sym::from_string("0.0000") )
+                                               ("unstake_net_quantity", core_sym::from_string("15000.00000000") )
+                                               ("unstake_cpu_quantity", core_sym::from_string("0.00000000") )
                                              )
                                  );
 

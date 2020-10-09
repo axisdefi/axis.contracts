@@ -12,7 +12,13 @@ function usage() {
    exit 1
 }
 
-BUILD_TESTS=false
+#BUILD_TESTS=false
+BUILD_TESTS=true
+
+AXIS_DIR=
+
+EOSIO_DIR_PROMPT=${AXIS_DIR}/defios
+CDT_DIR_PROMPT=${AXIS_DIR}/eosio.cdt
 
 if [ $# -ne 0 ]; then
   while getopts "e:c:tyh" opt; do
@@ -71,6 +77,7 @@ if [[ ${BUILD_TESTS} == true ]]; then
    # Include EOSIO_INSTALL_DIR in CMAKE_FRAMEWORK_PATH
    echo "Using EOSIO installation at: $EOSIO_INSTALL_DIR"
    export CMAKE_FRAMEWORK_PATH="${EOSIO_INSTALL_DIR}:${CMAKE_FRAMEWORK_PATH}"
+   export CMAKE_BUILD_TYPE=Debug
 fi
 
 printf "\t=========== Building eosio.contracts ===========\n\n"
@@ -79,6 +86,6 @@ NC='\033[0m'
 CPU_CORES=$(getconf _NPROCESSORS_ONLN)
 mkdir -p build
 pushd build &> /dev/null
-cmake -DBUILD_TESTS=${BUILD_TESTS} ../
+cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTS=${BUILD_TESTS} ../
 make -j $CPU_CORES
 popd &> /dev/null
