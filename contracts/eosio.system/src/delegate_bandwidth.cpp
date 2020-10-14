@@ -29,8 +29,10 @@ namespace eosiosystem {
       auto itr = _rammarket.find(ramcore_symbol.raw());
       const int64_t ram_reserve   = itr->base.balance.amount;
       const int64_t eos_reserve   = itr->quote.balance.amount;
+      
       const int64_t cost          = exchange_state::get_bancor_input( ram_reserve, eos_reserve, bytes );
       const int64_t cost_plus_fee = cost / double(0.995);
+
       buyram( payer, receiver, asset{ cost_plus_fee, core_symbol() } );
    }
 

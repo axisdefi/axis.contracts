@@ -75,6 +75,8 @@ namespace eosiosystem {
       } else {
          check( false, "invalid conversion" );
       }
+
+      
       return out;
    }
 

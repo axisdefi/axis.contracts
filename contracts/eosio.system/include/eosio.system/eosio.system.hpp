@@ -24,6 +24,8 @@
 // be set to 0.
 #define CHANNEL_RAM_AND_NAMEBID_FEES_TO_REX 1
 
+#define CORE_SYM_PRECISION 8
+
 namespace eosiosystem {
 
    using eosio::asset;
@@ -559,9 +561,9 @@ namespace eosiosystem {
          static constexpr eosio::name saving_account{"eosio.saving"_n};
          static constexpr eosio::name rex_account{"eosio.rex"_n};
          static constexpr eosio::name null_account{"eosio.null"_n};
-         static constexpr symbol ramcore_symbol = symbol(symbol_code("RAMCORE"), 4);
+         static constexpr symbol ramcore_symbol = symbol(symbol_code("RAMCORE"), CORE_SYM_PRECISION);
          static constexpr symbol ram_symbol     = symbol(symbol_code("RAM"), 0);
-         static constexpr symbol rex_symbol     = symbol(symbol_code("REX"), 4);
+         static constexpr symbol rex_symbol     = symbol(symbol_code("REX"), CORE_SYM_PRECISION);
 
          system_contract( name s, name code, datastream<const char*> ds );
          ~system_contract();
