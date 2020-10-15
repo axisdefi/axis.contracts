@@ -102,7 +102,7 @@ namespace eosiosystem {
 
       auto bitr = _rexbalance.require_find( from.value, "user must first buyrex" );
       check( rex.amount > 0 && rex.symbol == bitr->rex_balance.symbol,
-             "asset must be a positive amount of (REX, 4)" );
+             "asset must be a positive amount of (REX, 8)" );
       process_rex_maturities( bitr );
       check( rex.amount <= bitr->matured_rex, "insufficient available rex" );
 
@@ -1018,8 +1018,21 @@ namespace eosiosystem {
        * to exceed that limit, maximum amount of indivisible units cannot be set to a value larger than 4 * 10^14.
        * If precision of CORE_SYMBOL is 4, that corresponds to a maximum supply of 40 billion tokens.
        */
-      const int64_t rex_ratio = 10000;
-      const asset   init_total_rent( 20'000'0000, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
+
+      // for axis.
+      /**
+       * If CORE_SYMBOL is (AXIS,8), maximum supply is 24 * 10^6 tokens ( 24M tokens), i.e., maximum amount
+       * of indivisible units is 24*10^14. rex_ratio = 100 sets the upper bound on (REX,8) indivisible units to
+       * 24*10^16 and that is within the maximum allowable amount field of asset type which is set to 2^62
+       * (approximately 4.6 * 10^18). 
+       */
+      // const int64_t rex_ratio = 10000;
+      // const asset   init_total_rent( 20'000'0000, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
+      
+      const int64_t rex_ratio = 100;
+      const asset   init_total_rent( 20'000'00000000, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
+
+
       asset rex_received( 0, rex_symbol );
       auto itr = _rexpool.begin();
       if ( !rex_system_initialized() ) {
