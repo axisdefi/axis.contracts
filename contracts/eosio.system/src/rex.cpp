@@ -266,7 +266,7 @@ namespace eosiosystem {
       runrex(2);
 
       auto bitr = _rexbalance.require_find( owner.value, "account has no REX balance" );
-      check( rex.amount > 0 && rex.symbol == bitr->rex_balance.symbol, "asset must be a positive amount of (REX, 4)" );
+      check( rex.amount > 0 && rex.symbol == bitr->rex_balance.symbol, "asset must be a positive amount of (REX, 8)" );
       const asset   rex_in_sell_order = update_rex_account( owner, asset( 0, core_symbol() ), asset( 0, core_symbol() ) );
       const int64_t rex_in_savings    = read_rex_savings( bitr );
       check( rex.amount + rex_in_sell_order.amount + rex_in_savings <= bitr->rex_balance.amount,
@@ -300,7 +300,7 @@ namespace eosiosystem {
       runrex(2);
 
       auto bitr = _rexbalance.require_find( owner.value, "account has no REX balance" );
-      check( rex.amount > 0 && rex.symbol == bitr->rex_balance.symbol, "asset must be a positive amount of (REX, 4)" );
+      check( rex.amount > 0 && rex.symbol == bitr->rex_balance.symbol, "asset must be a positive amount of (REX, 8)" );
       const int64_t rex_in_savings = read_rex_savings( bitr );
       check( rex.amount <= rex_in_savings, "insufficient REX in savings" );
       process_rex_maturities( bitr );
@@ -735,6 +735,7 @@ namespace eosiosystem {
       int64_t rented_tokens = exchange_state::get_bancor_output( pool->total_rent.amount,
                                                                  pool->total_unlent.amount,
                                                                  payment.amount );
+                                                               
       check( payment.amount < rented_tokens, "loan price does not favor renting" );
       add_loan_to_rex_pool( payment, rented_tokens, true );
 
@@ -1022,16 +1023,18 @@ namespace eosiosystem {
       // for axis.
       /**
        * If CORE_SYMBOL is (AXIS,8), maximum supply is 24 * 10^6 tokens ( 24M tokens), i.e., maximum amount
-       * of indivisible units is 24*10^14. rex_ratio = 100 sets the upper bound on (REX,8) indivisible units to
-       * 24*10^16 and that is within the maximum allowable amount field of asset type which is set to 2^62
+       * of indivisible units is 24*10^14. rex_ratio = 1 sets the upper bound on (REX,8) indivisible units to
+       * 24*10^14 and that is within the maximum allowable amount field of asset type which is set to 2^62
        * (approximately 4.6 * 10^18). 
        */
+      
+      // rex_ratio was define globally as 1 for ovoid overflow.
+
       // const int64_t rex_ratio = 10000;
       // const asset   init_total_rent( 20'000'0000, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
+    
       
-      const int64_t rex_ratio = 100;
-      const asset   init_total_rent( 20'000'00000000, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
-
+      const asset   init_total_rent( rex_init_rent, core_symbol() ); /// base balance prevents renting profitably until at least a minimum number of core_symbol() is made available
 
       asset rex_received( 0, rex_symbol );
       auto itr = _rexpool.begin();

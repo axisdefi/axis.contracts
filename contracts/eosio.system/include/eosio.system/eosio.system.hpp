@@ -28,6 +28,9 @@
 
 namespace eosiosystem {
 
+   const int64_t rex_ratio = 10;
+   const int64_t rex_init_rent = 100'00000000;
+
    using eosio::asset;
    using eosio::block_timestamp;
    using eosio::check;

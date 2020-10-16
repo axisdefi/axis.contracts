@@ -23,6 +23,9 @@ using mvo = fc::mutable_variant_object;
 #endif
 #endif
 
+const int64_t rex_ratio = 10;
+const int64_t rex_init_rent = 100'00000000;
+
 namespace eosio_system {
 
 
