@@ -2709,7 +2709,7 @@ BOOST_AUTO_TEST_CASE(votepay_transition2, * boost::unit_test::tolerance(1e-10)) 
    eosio_system_tester t(eosio_system_tester::setup_level::minimal);
 
    std::string old_contract_core_symbol_name = "SYS"; // Set to core symbol used in contracts::util::system_wasm_old()
-   symbol old_contract_core_symbol{::eosio::chain::string_to_symbol_c( 4, old_contract_core_symbol_name.c_str() )};
+   symbol old_contract_core_symbol{::eosio::chain::string_to_symbol_c( CORE_SYM_PRECISION, old_contract_core_symbol_name.c_str() )};
 
    auto old_core_from_string = [&]( const std::string& s ) {
       return eosio::chain::asset::from_string(s + " " + old_contract_core_symbol_name);
@@ -3683,7 +3683,10 @@ BOOST_FIXTURE_TEST_CASE( setram_effect, eosio_system_tester ) try {
 
       // after buying and selling balance should be 700 + 300 * 0.995 * 0.995 = 997.0075 (actually 997.00740000 due to rounding fees up)
       BOOST_REQUIRE_EQUAL( success(), sellram(name_a, bought_bytes_a ) );
+<<<<<<< HEAD
       // 997.00749996
+=======
+>>>>>>> 851a7f8c65459a7a9328aec0e8e710ae27ce147b
       BOOST_REQUIRE_EQUAL( core_sym::from_string("997.00749996"), get_balance(name_a) );
    }
 
@@ -3871,18 +3874,14 @@ BOOST_FIXTURE_TEST_CASE( rex_auth, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( error("missing authority of eosio"), push_action( alice, N(setrex), mvo()("balance", one_eos) ) );
 
 } FC_LOG_AND_RETHROW()
-
-
-BOOST_FIXTURE_TEST_CASE( buy_sell_rex, eosio_system_tester ) try {
-
-   const int64_t ratio        = rex_ratio;
-   const asset   init_rent    = core_sym::from_string("100.00000000");
+ m_string("100.00000000");
    const asset   init_balance = core_sym::from_string("1000.00000000");
    const std::vector<account_name> accounts = { N(aliceaccount), N(bobbyaccount), N(carolaccount), N(emilyaccount), N(frankaccount) };
    account_name alice = accounts[0], bob = accounts[1], carol = accounts[2], emily = accounts[3], frank = accounts[4];
    setup_rex_accounts( accounts, init_balance );
 
    const asset one_unit = core_sym::from_string("0.00000001");
+
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("insufficient funds"), buyrex( alice, init_balance + one_unit ) );
 
    BOOST_REQUIRE_EQUAL( asset::from_string("25.00000000 REX"),  get_buyrex_result( alice, core_sym::from_string("2.50000000") ) );

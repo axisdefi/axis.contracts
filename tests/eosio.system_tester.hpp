@@ -927,7 +927,8 @@ public:
    }
 
    asset get_token_supply() {
-      return get_stats("CORE_SYM_PRECISION," CORE_SYM_NAME)["supply"].as<asset>();
+      std::string symbolname = std::to_string(CORE_SYM_PRECISION) + "," + CORE_SYM_NAME;
+      return get_stats(symbolname)["supply"].as<asset>();
    }
 
    uint64_t microseconds_since_epoch_of_iso_string( const fc::variant& v ) {
