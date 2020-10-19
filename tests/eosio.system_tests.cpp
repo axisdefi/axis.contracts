@@ -2706,7 +2706,7 @@ BOOST_AUTO_TEST_CASE(votepay_transition2, * boost::unit_test::tolerance(1e-10)) 
    eosio_system_tester t(eosio_system_tester::setup_level::minimal);
 
    std::string old_contract_core_symbol_name = "SYS"; // Set to core symbol used in contracts::util::system_wasm_old()
-   symbol old_contract_core_symbol{::eosio::chain::string_to_symbol_c( 4, old_contract_core_symbol_name.c_str() )};
+   symbol old_contract_core_symbol{::eosio::chain::string_to_symbol_c( CORE_SYM_PRECISION, old_contract_core_symbol_name.c_str() )};
 
    auto old_core_from_string = [&]( const std::string& s ) {
       return eosio::chain::asset::from_string(s + " " + old_contract_core_symbol_name);
@@ -3679,7 +3679,7 @@ BOOST_FIXTURE_TEST_CASE( setram_effect, eosio_system_tester ) try {
 
       // after buying and selling balance should be 700 + 300 * 0.995 * 0.995 = 997.0075 (actually 997.00740000 due to rounding fees up)
       BOOST_REQUIRE_EQUAL( success(), sellram(name_a, bought_bytes_a ) );
-      BOOST_REQUIRE_EQUAL( core_sym::from_string("997.00740000"), get_balance(name_a) );
+      BOOST_REQUIRE_EQUAL( core_sym::from_string("997.00749996"), get_balance(name_a) );
    }
 
    {
@@ -3877,7 +3877,7 @@ BOOST_FIXTURE_TEST_CASE( buy_sell_rex, eosio_system_tester ) try {
    account_name alice = accounts[0], bob = accounts[1], carol = accounts[2], emily = accounts[3], frank = accounts[4];
    setup_rex_accounts( accounts, init_balance );
 
-   const asset one_unit = core_sym::from_string("0.0000001");
+   const asset one_unit = core_sym::from_string("0.00000010");
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("insufficient funds"), buyrex( alice, init_balance + one_unit ) );
    BOOST_REQUIRE_EQUAL( asset::from_string("25000.00000000 REX"),  get_buyrex_result( alice, core_sym::from_string("2.50000000") ) );
    produce_blocks(2);
