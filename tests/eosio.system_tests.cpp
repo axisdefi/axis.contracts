@@ -2505,6 +2505,9 @@ BOOST_FIXTURE_TEST_CASE(votepay_share_proxy, eosio_system_tester, * boost::unit_
    BOOST_REQUIRE_EQUAL( get_producer_info2(carol)["last_votepay_share_update"].as_string(),
                         get_global_state3()["last_vpay_state_update"].as_string() );
    BOOST_TEST_REQUIRE( 0 == get_producer_info2(carol)["votepay_share"].as_double() );
+   
+   // @todo:
+   // this asset failed !
    BOOST_TEST_REQUIRE( 0 == get_global_state2()["total_producer_votepay_share"].as_double() );
    BOOST_TEST_REQUIRE( 0 == get_global_state3()["total_vpay_share_change_rate"].as_double() );
 
@@ -3672,6 +3675,7 @@ BOOST_FIXTURE_TEST_CASE( setram_effect, eosio_system_tester ) try {
       const auto name_a = accounts[0];
       transfer( config::system_account_name, name_a, core_sym::from_string("1000.00000000") );
       BOOST_REQUIRE_EQUAL( core_sym::from_string("1000.00000000"), get_balance(name_a) );
+
       const uint64_t init_bytes_a = get_total_stake(name_a)["ram_bytes"].as_uint64();
       BOOST_REQUIRE_EQUAL( success(), buyram( name_a, name_a, core_sym::from_string("300.00000000") ) );
       BOOST_REQUIRE_EQUAL( core_sym::from_string("700.00000000"), get_balance(name_a) );
@@ -3679,7 +3683,8 @@ BOOST_FIXTURE_TEST_CASE( setram_effect, eosio_system_tester ) try {
 
       // after buying and selling balance should be 700 + 300 * 0.995 * 0.995 = 997.0075 (actually 997.00740000 due to rounding fees up)
       BOOST_REQUIRE_EQUAL( success(), sellram(name_a, bought_bytes_a ) );
-      BOOST_REQUIRE_EQUAL( core_sym::from_string("997.00740000"), get_balance(name_a) );
+      // 997.00749996
+      BOOST_REQUIRE_EQUAL( core_sym::from_string("997.00749996"), get_balance(name_a) );
    }
 
    {
@@ -3871,18 +3876,19 @@ BOOST_FIXTURE_TEST_CASE( rex_auth, eosio_system_tester ) try {
 BOOST_FIXTURE_TEST_CASE( buy_sell_rex, eosio_system_tester ) try {
 
    const int64_t ratio        = rex_ratio;
-   const asset   init_rent    = core_sym::from_string("20000.00000000");
+   const asset   init_rent    = core_sym::from_string("100.00000000");
    const asset   init_balance = core_sym::from_string("1000.00000000");
    const std::vector<account_name> accounts = { N(aliceaccount), N(bobbyaccount), N(carolaccount), N(emilyaccount), N(frankaccount) };
    account_name alice = accounts[0], bob = accounts[1], carol = accounts[2], emily = accounts[3], frank = accounts[4];
    setup_rex_accounts( accounts, init_balance );
 
-   const asset one_unit = core_sym::from_string("0.0000001");
+   const asset one_unit = core_sym::from_string("0.00000001");
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("insufficient funds"), buyrex( alice, init_balance + one_unit ) );
-   BOOST_REQUIRE_EQUAL( asset::from_string("25000.00000000 REX"),  get_buyrex_result( alice, core_sym::from_string("2.50000000") ) );
+
+   BOOST_REQUIRE_EQUAL( asset::from_string("25.00000000 REX"),  get_buyrex_result( alice, core_sym::from_string("2.50000000") ) );
    produce_blocks(2);
    produce_block(fc::days(5));
-   BOOST_REQUIRE_EQUAL( core_sym::from_string("2.50000000"),     get_sellrex_result( alice, asset::from_string("25000.00000000 REX") ) );
+   BOOST_REQUIRE_EQUAL( core_sym::from_string("2.50000000"),     get_sellrex_result( alice, asset::from_string("25.00000000 REX") ) );
 
    BOOST_REQUIRE_EQUAL( success(),                           buyrex( alice, core_sym::from_string("13.00000000") ) );
    BOOST_REQUIRE_EQUAL( core_sym::from_string("13.00000000"),    get_rex_vote_stake( alice ) );
@@ -3897,10 +3903,13 @@ BOOST_FIXTURE_TEST_CASE( buy_sell_rex, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( init_rent,                         rex_pool["total_rent"].as<asset>() );
    BOOST_REQUIRE_EQUAL( get_rex_balance(alice),            rex_pool["total_rex"].as<asset>() );
 
+   // bob init have 1000, bought 750 rex.
    BOOST_REQUIRE_EQUAL( success(), buyrex( bob, core_sym::from_string("75.00000000") ) );
    BOOST_REQUIRE_EQUAL( core_sym::from_string("925.00000000"), get_rex_fund(bob) );
    BOOST_REQUIRE_EQUAL( ratio * asset::from_string("75.00000000 REX").get_amount(), get_rex_balance(bob).get_amount() );
    rex_pool = get_rex_pool();
+   
+   // alice stake 30, bob stake 75 -> 105
    BOOST_REQUIRE_EQUAL( core_sym::from_string("105.00000000"), rex_pool["total_lendable"].as<asset>() );
    BOOST_REQUIRE_EQUAL( core_sym::from_string("105.00000000"), rex_pool["total_unlent"].as<asset>() );
    BOOST_REQUIRE_EQUAL( core_sym::from_string("0.00000000"),   rex_pool["total_lent"].as<asset>() );
@@ -3908,17 +3917,20 @@ BOOST_FIXTURE_TEST_CASE( buy_sell_rex, eosio_system_tester ) try {
    BOOST_REQUIRE_EQUAL( get_rex_balance(alice) + get_rex_balance(bob), rex_pool["total_rex"].as<asset>() );
 
    produce_block( fc::days(6) );
+   // carol sell 5 rex, failed before buy.
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("user must first buyrex"),        sellrex( carol, asset::from_string("5.00000000 REX") ) );
+   // bob sell 550 rex,   750 - 550 -> 200 rex.
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("asset must be a positive amount of (REX, 8)"),
                         sellrex( bob, core_sym::from_string("55.00000000") ) );
    BOOST_REQUIRE_EQUAL( wasm_assert_msg("asset must be a positive amount of (REX, 8)"),
-                        sellrex( bob, asset::from_string("-75.0030 REX") ) );
-   BOOST_REQUIRE_EQUAL( wasm_assert_msg("insufficient available rex"),    sellrex( bob, asset::from_string("750000.0030 REX") ) );
+                        sellrex( bob, asset::from_string("-75.00300000 REX") ) );
+   //
+   BOOST_REQUIRE_EQUAL( wasm_assert_msg("insufficient available rex"),    sellrex( bob, asset::from_string("750.00300000 REX") ) );
 
    auto init_total_rex      = rex_pool["total_rex"].as<asset>().get_amount();
    auto init_total_lendable = rex_pool["total_lendable"].as<asset>().get_amount();
-   BOOST_REQUIRE_EQUAL( success(),                             sellrex( bob, asset::from_string("550001.00000000 REX") ) );
-   BOOST_REQUIRE_EQUAL( asset::from_string("199999.00000000 REX"), get_rex_balance(bob) );
+   BOOST_REQUIRE_EQUAL( success(),                             sellrex( bob, asset::from_string("550.00100000 REX") ) );
+   BOOST_REQUIRE_EQUAL( asset::from_string("199.99900000 REX"), get_rex_balance(bob) );
    rex_pool = get_rex_pool();
    auto total_rex      = rex_pool["total_rex"].as<asset>().get_amount();
    auto total_lendable = rex_pool["total_lendable"].as<asset>().get_amount();
